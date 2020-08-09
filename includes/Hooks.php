@@ -26,6 +26,9 @@ class Hooks {
 		$messageKey = self::shouldHaveDarkModeEnabledOnLoad( $skin )
 			? 'darkmode-default-link' : 'darkmode-link';
 
+		$after = $skin->getUser()->isLoggedIn()
+			? 'mytalk' : 'anontalk';
+
 		$insertUrls = [
 			'darkmode-link' => [
 				'text' => $skin->msg( $messageKey )->text(),
@@ -34,7 +37,12 @@ class Hooks {
 			]
 		];
 
-		$personal_urls = wfArrayInsertAfter( $personal_urls, $insertUrls, 'mytalk' );
+		if (array_key_exists($after, $personal_urls)) {
+			$personal_urls = wfArrayInsertAfter( $personal_urls, $insertUrls, $after );
+		} else {
+			// most likely no permissions to edit or something, let's just append to the beginning
+			$personal_urls = $insertUrls + $personal_urls;
+		}
 	}
 
 	/**
@@ -76,7 +84,7 @@ class Hooks {
 	 * @return bool
 	 */
 	private static function shouldHaveDarkMode( Skin $skin ) {
-		return $skin->getUser()->isLoggedIn() && $skin->getSkinName() !== 'minerva' && $skin->getSkinName() !== 'peruna';
+		return $skin->getSkinName() !== 'minerva' && $skin->getSkinName() !== 'peruna';
 	}
 
 	/**
