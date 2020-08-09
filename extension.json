@@ -2,7 +2,8 @@
 	"name": "DarkMode",
 	"version": "0.0.1",
 	"author": [
-		"MusikAnimal"
+		"MusikAnimal",
+		"Taavi Väänänen"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:DarkMode",
 	"descriptionmsg": "darkmode-desc",
@@ -16,7 +17,8 @@
 	},
 	"Hooks": {
 		"PersonalUrls": "MediaWiki\\Extension\\DarkMode\\Hooks::onPersonalUrls",
-		"BeforePageDisplay": "MediaWiki\\Extension\\DarkMode\\Hooks::onBeforePageDisplay"
+		"BeforePageDisplay": "MediaWiki\\Extension\\DarkMode\\Hooks::onBeforePageDisplay",
+		"GetPreferences": "MediaWiki\\Extension\\DarkMode\\Hooks::onGetPreferences"
 	},
 	"MessagesDirs": {
 		"DarkMode": [
@@ -48,6 +50,9 @@
 	"ResourceFileModulePaths": {
 		"localBasePath": "resources",
 		"remoteExtPath": "DarkMode/resources"
+	},
+	"DefaultUserOptions": {
+		"darkmode-enabled" : 1
 	},
 	"manifest_version": 2
 }

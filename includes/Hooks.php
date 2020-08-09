@@ -2,10 +2,12 @@
 
 namespace MediaWiki\Extension\DarkMode;
 
+use User;
 use OutputPage;
 use Skin;
 use SkinTemplate;
 use Title;
+use MediaWiki\MediaWikiServices;
 
 class Hooks {
 	/**
@@ -21,9 +23,12 @@ class Hooks {
 			return;
 		}
 
+		$messageKey = self::shouldHaveDarkModeEnabledOnLoad( $skin )
+			? 'darkmode-default-link' : 'darkmode-link';
+
 		$insertUrls = [
 			'darkmode-link' => [
-				'text' => $skin->msg( 'darkmode-link' )->text(),
+				'text' => $skin->msg( $messageKey )->text(),
 				'href' => '#',
 				'active' => false,
 			]
@@ -45,6 +50,24 @@ class Hooks {
 
 		$output->addModules( 'ext.DarkMode' );
 		$output->addModuleStyles( 'ext.DarkMode.styles' );
+
+		if ( self::shouldHaveDarkModeEnabledOnLoad( $skin ) ) {
+			$output->addHtmlClasses( 'client-dark-mode' );
+		}
+	}
+
+	/**
+	 * Handler for GetPreferences hook.
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/GetPreferences
+	 * @param User $user
+	 * @param array $preferences
+	 */
+	public static function onGetPreferences( User $user, array &$preferences )
+	{
+		$preferences['darkmode-enabled'] = [
+			'type' => 'api',
+			'default' => 1,
+		];
 	}
 
 	/**
@@ -53,6 +76,16 @@ class Hooks {
 	 * @return bool
 	 */
 	private static function shouldHaveDarkMode( Skin $skin ) {
-		return $skin->getUser()->isLoggedIn() && $skin->getSkinName() !== 'minerva';
+		return $skin->getUser()->isLoggedIn() && $skin->getSkinName() !== 'minerva' && $skin->getSkinName() !== 'peruna';
+	}
+
+	/**
+	 * Conditions for when Dark Mode should be enabled when a page is loaded.
+	 * @param Skin $skin
+	 * @return bool
+	 */
+	private static function shouldHaveDarkModeEnabledOnLoad( Skin $skin ) {
+		return MediaWikiServices::getInstance()->getUserOptionsLookup()
+			->getOption( $skin->getUser(), 'darkmode-enabled' );
 	}
 }
